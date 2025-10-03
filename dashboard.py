@@ -2,53 +2,99 @@ import streamlit as st
 import MetaTrader5 as mt5
 import pandas as pd
 
-st.set_page_config(page_title="Robô Luxo", page_icon="📈", layout="wide")
+# Configuração da página
+st.set_page_config(
+    page_title="Robô Luxo Trading",
+    page_icon="📈",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# --- SIDEBAR CONTROLS ---
-st.sidebar.header("Controles do Robô")
+# --- CABEÇALHO ---
+st.title("🤖 Robô Luxo - Sistema de Trading")
+st.markdown("---")
 
-if st.sidebar.button("Iniciar Robô"):
-    st.sidebar.success("Robô iniciado!")
+# --- SIDEBAR ---
+with st.sidebar:
+    st.header("🎮 Controles do Robô")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("▶️ INICIAR", use_container_width=True):
+            st.success("Robô Iniciado!")
+    with col2:
+        if st.button("⏹️ PARAR", use_container_width=True):
+            st.warning("Robô Parado!")
+    
+    st.markdown("---")
+    st.subheader("⚙️ Configurações")
+    volume = st.slider("Volume por Trade", 0.01, 1.0, 0.1)
+    stoploss = st.number_input("Stop Loss (pips)", 10, 100, 20)
+    
+    st.markdown("---")
+    st.subheader("🔔 Alertas")
+    alert_ativo = st.checkbox("Ativar Alertas")
+    if alert_ativo:
+        alert_price = st.number_input("Preço Alvo", value=1.0800)
+        if st.button("🔄 Configurar Alerta"):
+            st.success(f"Alerta em {alert_price}")
 
-if st.sidebar.button("Parar Robô"):
-    st.sidebar.warning("Robô parado!")
+# --- ÁREA PRINCIPAL ---
+tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "📈 Performance", "⚡ Controles"])
 
-# --- MAIN DASHBOARD ---
-st.title("Robô Luxo - AvaTrade MT5")
+with tab1:
+    st.subheader("Status da Conta MT5")
+    
+    if st.button("🔄 Atualizar Dados da Conta", type="primary"):
+        try:
+            if mt5.initialize():
+                account = mt5.account_info()
+                
+                # Métricas principais
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("💰 Saldo", f"${account.balance:,.2f}")
+                with col2:
+                    st.metric("📈 Equity", f"${account.equity:,.2f}")
+                with col3:
+                    st.metric("🎯 Lucro/Prejuízo", f"${account.profit:,.2f}")
+                
+                # Informações da conta
+                col4, col5 = st.columns(2)
+                with col4:
+                    st.info(f"📊 Conta: {account.login}")
+                with col5:
+                    st.info(f"🏦 Corretora: {account.company}")
+                
+                mt5.shutdown()
+            else:
+                st.error("❌ Falha na conexão com MT5")
+        except Exception as e:
+            st.error(f"❌ Erro: {str(e)}")
 
-if st.button("Atualizar Dados MT5"):
-    try:
-        if mt5.initialize():
-            account = mt5.account_info()
-            st.success("Conectado ao MT5!")
-            
-            col1, col2, col3 = st.columns(3)
-            col1.metric("Saldo", f"${account.balance:,.2f}")
-            col2.metric("Equity", f"${account.equity:,.2f}") 
-            col3.metric("Lucro", f"${account.profit:,.2f}")
-            
-            mt5.shutdown()
-        else:
-            st.error("Falha ao conectar ao MT5")
-    except Exception as e:
-        st.error(f"Erro: {e}")
+with tab2:
+    st.subheader("📈 Performance e Gráficos")
+    st.info("Gráficos de performance serão implementados aqui")
+    
+    # Placeholder para gráficos
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("Trades Realizados", "15")
+        st.metric("Win Rate", "73%")
+    with col2:
+        st.metric("Lucro Total", "$490.00")
+        st.metric("Melhor Trade", "$125.00")
 
-# Posições atuais
-st.sidebar.subheader("Posições Atuais")
-st.sidebar.write("EURUSD | Volume: 0.02 | Lucro: $1.19")
-st.sidebar.write("EURUSD | Volume: 0.02 | Lucro: $-1.43")
+with tab3:
+    st.subheader("⚡ Controles Avançados")
+    st.write("Controles detalhados do robô de trading")
+    
+    # Configurações avançadas
+    st.selectbox("Estratégia", ["Média Móvel", "RSI", "Breakout"])
+    st.number_input("Take Profit (pips)", 20, 200, 50)
+    st.slider("Agressividade", 1, 5, 3)
 
-# Novas funcionalidades
-st.sidebar.subheader("Configurações")
-volume = st.sidebar.slider("Volume por Trade", 0.01, 1.0, 0.1)
-stoploss = st.sidebar.number_input("Stop Loss (pips)", 10, 100, 20)
-
-st.subheader("Performance")
-st.info("Gráfico de performance será adicionado aqui")
-
-st.sidebar.subheader("Alertas")
-if st.sidebar.checkbox("Ativar Alertas"):
-    alert_price = st.sidebar.number_input("Preço para Alerta", value=1.0000)
-    if st.sidebar.button("Configurar Alerta"):
-        st.sidebar.success(f"Alerta configurado em {alert_price}")
+# --- RODAPÉ ---
+st.markdown("---")
+st.caption("🤖 Robô Luxo Trading System • Desenvolvido com Streamlit + MetaTrader 5")
 
