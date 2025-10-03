@@ -1,5 +1,6 @@
 import streamlit as st
 
 st.title("🚀 Dashboard Trading Leo")
-st.success("✅ Deploy no Render FUNCIONANDO!")
-st.info("Em breve: integração com MT5 e gráficos")
+st.success("✅ Online e Funcionando!")
+st.info("Performance: $490.00 | Trades: 15")
+st.write("Posições Ativas: EURUSD 0.02L")
